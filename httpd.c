@@ -163,30 +163,56 @@ void header(int c_socket,int status,int d_type){
 //send http body
 
 int send_body(int c_socket,int d_type){
-  int fd;
+  
+  FILE *fp;
   if(d_type==text){
-    fd=open("html/hello.html",O_RDWR);
+    // fd=open("html/hello.html",O_RDWR);
+    //使用fopen
+    if((fp=fopen("html/hello.html","r"))==NULL){
+      error_die("send bosy open");
+    }
   }
 
   char buff[1024];
+  memset(buff,0,sizeof(buff));
   char c;
-  while(1){
-    ssize_t size=read(fd,&c,sizeof(c));
-    if(size==0){
+  char k[102]="菜鸟教程";
+  // while(1){
+  //   ssize_t size=read(fd,&c,sizeof(c));
+  //   if(size==0){
       
-      break;
-    }else if(size==-1){
-      error_die("send body read");
-    }
-    if(c<)
+  //     break;
+  //   }else if(size==-1){
+  //     error_die("send body read");
+  //   }
+  //   // if(c<)
     
-    // send(c_socket,html1,strlen(html1),0);
-    send(c_socket,buff,size,0); 
-    memset(buff,0,sizeof(buff));   
-  }
+  //   // send(c_socket,html1,strlen(html1),0);
+  //   send(c_socket,&c,size,0); 
+  //   memset(buff,0,sizeof(buff));   
+  // }
+  int i=0;
+  while((c=fgetc(fp))!=EOF){
+    if(c<0){
+      buff[i++]=c;
+      continue;
+    }
+    
+    printf("%c\n",c);
+    if(i!=0){
+      printf("%s\n",buff);
+      send(c_socket,buff,strlen(buff),0);
+      memset(buff,0,sizeof(buff));
+      i=0;
+    }
+    if(i==0){
+      send(c_socket,&c,sizeof(c),0);
 
-   
-  close(fd);
+    }
+
+    
+  }
+  fclose(fp);
   return 0;
 }
 
